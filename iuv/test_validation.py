@@ -256,6 +256,7 @@ class TestValidator(object):
         return self.decide_final_verdict(result)
 
     def _hs(self, program_file, validator, visited_tests):
+        return utils.VerdictUnknown()
         test_vectors = self.create_all_test_vectors(program_file, visited_tests)
 
         for vector in test_vectors:
