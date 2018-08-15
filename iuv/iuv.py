@@ -163,6 +163,7 @@ def _parse_cli_args(argv):
         output_dir = os.path.join(script_path, os.pardir, args.output_dir)
         os.makedirs(output_dir, exist_ok=True)
         utils.tmp = tempfile.mkdtemp(dir=output_dir)
+        print("tmp_output_dir: " + utils.tmp)
     args.timelimit = float(args.timelimit) if args.timelimit else None
     if not args.machine_model:
         logging.warning("No machine model specified. Assuming 32 bit")
