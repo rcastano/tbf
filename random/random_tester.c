@@ -3,6 +3,9 @@
 #include<string.h>
 #include<time.h>
 
+time_t seconds = 0;
+DEFINE_CONST_OFFSET time_t offset
+
 unsigned int get_rand_seed() {
   struct timespec curr_time;
   clock_gettime(CLOCK_REALTIME, &curr_time);
@@ -10,6 +13,13 @@ unsigned int get_rand_seed() {
 }
 
 void input(void * var, size_t var_size, const char * var_name) {
+  if (seconds == 0) {
+    seconds = time(NULL) + offset;
+  }
+  if (time(NULL) > seconds) {
+    exit(0);
+  }
+
   srand(get_rand_seed());
   FILE *vector = fopen("vector.test", "a+");
   size_t int_size = sizeof(int);

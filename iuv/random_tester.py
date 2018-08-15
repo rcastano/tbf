@@ -7,10 +7,13 @@ from test_validation import TestValidator
 name = "prtest"
 include_dir = os.path.abspath("./random/include")
 generator_harness = os.path.abspath("./random/random_tester.c")
+generator_harness_changed = os.path.abspath("./random/random_tester_changed.c")
 random_runner = os.path.abspath("./random/run.sh")
 
 
-def get_test_cases(exclude=[], directory=utils.tmp):
+def get_test_cases(exclude=[], directory=None):
+    if directory is None:
+        directory = utils.tmp
     all_tests = [t for t in glob.glob(directory + '/vector[0-9]*.test')]
     tcs = list()
     for t in [t for t in all_tests if utils.get_file_name(t) not in exclude]:
@@ -60,7 +63,19 @@ class InputGenerator(BaseInputGenerator):
         compiled_file = '.'.join(os.path.basename(filename).split('.')[:-1])
         compiled_file = utils.get_file_path(compiled_file, temp_dir=True)
         machinem_arg = self.machine_model.compile_parameter
-        compile_cmd = ['gcc', '--coverage', '-std=gnu11', machinem_arg, '-I', include_dir, '-o', compiled_file, generator_harness, filename, '-lm']
+
+        if os.path.exists(generator_harness_changed):
+            os.remove(generator_harness_changed)
+        print(generator_harness_changed)
+        changed_f = open(generator_harness_changed, 'w')
+        with open(generator_harness, 'r') as f:
+            for line in f:
+                if line.strip() == "DEFINE_CONST_OFFSET time_t offset":
+                    print("time_t offset = 30;", file=changed_f)
+                else:
+                    print(line.strip(), file=changed_f)
+        compile_cmd = ['gcc', '--coverage', '-std=gnu11', machinem_arg, '-I', include_dir, '-o', compiled_file, generator_harness_changed, filename, '-lm']
+        print (' '.join(compile_cmd))
         input_generation_cmd = [random_runner, compiled_file]
 
         return [compile_cmd, input_generation_cmd]

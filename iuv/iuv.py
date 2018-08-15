@@ -13,6 +13,7 @@ import klee
 import random_tester
 import utils
 import shutil
+import tempfile
 
 from threading import Event, Thread
 from time import sleep
@@ -141,6 +142,11 @@ def _create_cli_arg_parser():
                           help="file to verify"
                           )
 
+    args.add_argument("--output_dir",
+                          help="Output directory",
+                          action='store'
+                          )
+
     args.add_argument("--version",
                       action="version", version='{}'.format(__VERSION__)
                       )
@@ -149,10 +155,14 @@ def _create_cli_arg_parser():
                       )
     return parser
 
-
+script_path = os.path.dirname(os.path.realpath(__file__))
 def _parse_cli_args(argv):
     parser = _create_cli_arg_parser()
     args = parser.parse_args(argv)
+    if args.output_dir:
+        output_dir = os.path.join(script_path, os.pardir, args.output_dir)
+        os.makedirs(output_dir, exist_ok=True)
+        utils.tmp = tempfile.mkdtemp(dir=output_dir)
     args.timelimit = float(args.timelimit) if args.timelimit else None
     if not args.machine_model:
         logging.warning("No machine model specified. Assuming 32 bit")
